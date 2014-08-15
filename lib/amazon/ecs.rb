@@ -123,13 +123,13 @@ module Amazon
       opts[:timestamp] = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
       request_url = prepare_url(opts)
-      log "Request URL: #{request_url}"
+      #log "Request URL: #{request_url}"
       
-      res = Net::HTTP.get_response(URI::parse(request_url))
-      unless res.kind_of? Net::HTTPSuccess
-        raise Amazon::RequestError, "HTTP Response: #{res.code} #{res.message}"
-      end
-      Response.new(res.body)
+      #res = Net::HTTP.get_response(URI::parse(request_url))
+      #unless res.kind_of? Net::HTTPSuccess
+      #  raise Amazon::RequestError, "HTTP Response: #{res.code} #{res.message}"
+      #end
+      #Response.new(res.body)
     end
     
     def self.validate_request(opts) 
