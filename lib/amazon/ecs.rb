@@ -22,7 +22,6 @@
 #++
 
 require 'net/http'
-require 'nokogiri'
 require 'cgi'
 require 'base64'
 require 'openssl'
@@ -122,89 +121,14 @@ module Amazon
       opts[:timestamp] = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
       request_url = prepare_url(opts)
-      #log "Request URL: #{request_url}"
-      
-      #res = Net::HTTP.get_response(URI::parse(request_url))
-      #unless res.kind_of? Net::HTTPSuccess
-      #  raise Amazon::RequestError, "HTTP Response: #{res.code} #{res.message}"
-      #end
-      #Response.new(res.body)
     end
-    
+
     def self.validate_request(opts) 
       raise Amazon::RequestError, "" if opts[:associate_tag]
     end
 
     # Response object returned after a REST call to Amazon service.
-    class Response
-      
-      # XML input is in string format
-      def initialize(xml)
-        @doc = Nokogiri::XML(xml, nil, 'UTF-8')
-        @doc.remove_namespaces!
-        # @doc.xpath("//*").each { |elem| elem.name = elem.name.downcase }
-        # @doc.xpath("//@*").each { |att| att.name = att.name.downcase }
-      end
 
-      # Return Nokogiri::XML::Document object.
-      def doc
-        @doc
-      end
-
-      # Return true if request is valid.
-      def is_valid_request?
-        Element.get(@doc, "//IsValid") == "True"
-      end
-
-      # Return true if response has an error.
-      def has_error?
-        !(error.nil? || error.empty?)
-      end
-
-      # Return error message.
-      def error
-        Element.get(@doc, "//Error/Message")
-      end
-      
-      # Return error code
-      def error_code
-        Element.get(@doc, "//Error/Code")
-      end
-      
-      # Return an array of Amazon::Element item objects.
-      def items
-        @items ||= (@doc/"Item").collect { |item| Element.new(item) }
-      end
-      
-      # Return the first item (Amazon::Element)
-      def first_item
-        items.first
-      end
-      
-      # Return current page no if :item_page option is when initiating the request.
-      def item_page
-        @item_page ||= Element.get(@doc, "//ItemPage").to_i
-      end
-
-      # Return total results.
-      def total_results
-        @total_results ||= Element.get(@doc, "//TotalResults").to_i
-      end
-      
-      # Return total pages.
-      def total_pages
-        @total_pages ||= Element.get(@doc, "//TotalPages").to_i
-      end
-
-      def marshal_dump
-        @doc.to_s
-      end
-
-      def marshal_load(xml)
-        initialize(xml)
-      end
-    end
-    
     protected
       def self.log(s)
         return unless self.debug
