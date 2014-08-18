@@ -24,7 +24,6 @@
 require 'net/http'
 require 'nokogiri'
 require 'cgi'
-require 'hmac-sha2'
 require 'base64'
 require 'openssl'
 
@@ -274,7 +273,7 @@ module Amazon
           signature = OpenSSL::HMAC.digest(OPENSSL_DIGEST, key, url)
           signature = [signature].pack('m').chomp
         else
-          signature = Base64.encode64( HMAC::SHA256.digest(key, url) ).strip
+          raise('No OpenSSL Digest Support')
         end
         signature = URI.escape(signature, Regexp.new("[+=]"))
         return signature
